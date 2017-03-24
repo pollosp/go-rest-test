@@ -56,7 +56,7 @@ func ConverToCel(t float64) float64 {
 	return t - 273.15 
 }
 
-func main() {
+func Temp(UrlBase string) error{
   location := os.Getenv("W_LOCATION")
 
   if location == "" {
@@ -68,21 +68,13 @@ func main() {
   safeLocation := url.QueryEscape(location)
   safeToken := url.QueryEscape(token)
  
-  url := fmt.Sprintf("http://api.openweathermap.org/data/2.5/weather?q=%s&appid=%s", safeLocation, safeToken)
+  url := fmt.Sprintf("%s/weather?q=%s&appid=%s",UrlBase,safeLocation, safeToken)
   
   req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		log.Fatal("NewRequest: ", err)
-		return
-	}
 
   client := &http.Client{}
  
   resp, err := client.Do(req)
-	if err != nil {
-		log.Fatal("Do: ", err)
-		return
-	}
 
   defer resp.Body.Close()
   
@@ -92,4 +84,10 @@ func main() {
 		log.Println(err)
 	} 
   fmt.Println("Temp in ",location," ==  ", ConverToCel(cw.Main.Temp))
+  return err
 }
+func main() {
+
+Temp("http://api.openweathermap.org/data/2.5/")
+}
+
