@@ -4,6 +4,7 @@ import (
   "testing"
   "net/http"
   "net/http/httptest" 
+  "os"
 )
 func TestConverToCel(t *testing.T){
   expected := 0.0
@@ -14,6 +15,13 @@ func TestConverToCel(t *testing.T){
 }
 
 func TestWeatherAPIOK(t *testing.T) {
+  
+  location_mock := os.Getenv("W_LOCATION")
+  if location_mock == "" {
+    location_mock = "Valencia,es"
+  }
+  token := os.Getenv("W_TOKEN")
+
   ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
     w.WriteHeader(http.StatusOK)
 
@@ -23,15 +31,15 @@ if r.Method != "GET" {
 
 r.ParseForm()
     location := r.Form.Get("q")
-    if location != "Valencia,es" {
-      t.Errorf("Expected request to have 'Valencia,es', got: '%s'", location)
+    if location != location_mock {
+      t.Errorf("Expected request to have %s, got: '%s'",location_mock, location)
     }
 
 }))
  
  defer ts.Close()
   TestServerBaseUrl := ts.URL
-  err := Temp(TestServerBaseUrl)
+  err := Temp(TestServerBaseUrl, location_mock, token)
    if err != nil {
     t.Errorf("Temp() returned an error: %s", err)
   }
